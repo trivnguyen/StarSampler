@@ -258,10 +258,10 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
             print('  sampling completed, time used: ', time.time()-t1, 'sec')
             print('sample time: ', proptime + time.time()-t1,  'sec')
             print('------------------------------------')
-
     if r_vr_vt:
             return r_vr_vt_complete(samplearr)
     if r_v:
+
             return r_v_complete(samplearr)
     if z_vr_vt:
             return z_vr_vt_complete(samplearr)
@@ -398,7 +398,7 @@ def r_vr_vt_complete(samplelist):
         vx = np.cos(theta)*np.cos(phi)*vx2 - np.sin(phi)*vy2 + np.sin(theta)*np.cos(phi)*vz2
         vy = np.cos(theta)*np.sin(phi)*vx2 + np.cos(phi)*vy2 + np.sin(theta)*np.sin(phi)*vz2
         vz = -np.sin(theta)*vx2 + np.cos(theta)*vz2
-        return x, y, z, vx, vy, vz
+        return np.vstack([x, y, z, vx, vy, vz])
 
 #give random direction to both velocity and radial position, convert to cartesian coordinate
 def r_v_complete(samplelist):
@@ -422,7 +422,7 @@ def r_v_complete(samplelist):
         vy     = v * np.sin(vtheta) * np.sin(vphi)
         vz     = v * np.cos(vtheta)
 
-        return xx, yy, zz, vx,vy,vz
+        return np.vstack([xx, yy, zz, vx, vy, vz])
 
 
 def z_vr_vt_complete(samplelist, context):
@@ -459,8 +459,7 @@ def z_vr_vt_complete(samplelist, context):
     vx = np.cos(theta)*np.cos(phi)*vx2 - np.sin(phi)*vy2 + np.sin(theta)*np.cos(phi)*vz2
     vy = np.cos(theta)*np.sin(phi)*vx2 + np.cos(phi)*vy2 + np.sin(theta)*np.sin(phi)*vz2
     vz = -np.sin(theta)*vx2 + np.cos(theta)*vz2
-    return x, y, z, vx, vy, vz
-
+    return np.vstack([x, y, z, vx, vy, vz])
 
 
 def getfmax(fprob, Xn, Vn, An, model_param, context, rlim, vlim, brute=True):
