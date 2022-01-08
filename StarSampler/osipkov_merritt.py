@@ -42,7 +42,7 @@ class OM(object):
 
         #-- num_rsteps = 1e5 should be enough of a table to approximate drho(r)/dPhi(r)
         #-- num_Qsteps = 1000 should be enough to create G(Q) table to approximate f(Q)
-        Qarr, dfG, rtrunc = GQ(self.param_list, num_rsteps = 1e5, num_Qsteps = 1000)
+        Qarr, dfG, rtrunc = GQ(self.param_list, num_rsteps=10000, num_Qsteps=1000)
         r200 = getR200(DM_param)
 
         Pr0 = OMgenphi(1e-8, rtrunc, self.rhos, rs, alpha, beta, gamma)
@@ -172,7 +172,7 @@ def rho_Q(rarr, ra, rs_s, al_s, be_s, ga_s):
     return rhoQ1
 
 # calculate f(Q) function
-def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
+def GQ(model_param, num_rsteps=10000, num_Qsteps=1000):
     time_ini = time.time()
     print('Calculating f(Q) function... ')
 
@@ -185,7 +185,7 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
     rhos_s = 1.0
     al_s, be_s, ga_s = al_s*1.0, be_s*1.0, ga_s*1.0
 
-    nsteps = 1e5
+    nsteps = 10000
     r200   = getR200(DM_param)
     rmax   = r200*1000000
     rtrunc = r200*1 #Dark matter density cut off radius
@@ -193,9 +193,9 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
 
     #---------------we want drho/dP over large range of rarr, so use rmax----------------
     t0 = time.time()
-    rarr0 = np.linspace(1e-8, rmax*1, num_rsteps*.5)
-    rarr1 = np.logspace(-5, np.log10(rmax)-0, num_rsteps*.5)
-    rarr2 = np.logspace(-8, np.log10(rmax)-6, num_rsteps*.5)
+    rarr0 = np.linspace(1e-8, rmax*1, num_rsteps // 2)
+    rarr1 = np.logspace(-5, np.log10(rmax)-0, num_rsteps // 2)
+    rarr2 = np.logspace(-8, np.log10(rmax)-6, num_rsteps // 2)
     rarr = np.unique( np.hstack((rarr0, rarr1, rarr2)) )
     rarr = rarr[np.argsort(rarr)]
     Parr = -1*(OMgenphi(rarr, rtrunc, rhos, rs, alpha, beta, gamma))
@@ -247,7 +247,7 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
     Qtest = np.linspace(0, max(Qarr)*1, numQ)
     fQtest = fQ(Qtest)
     num_neg_fQ = sum(fQtest<0)
-    neg_Q_fraction = num_neg_fQ / (numQ*1.)
+    neg_Q_fraction = num_neg_fQ / numQ
     if neg_Q_fraction >= 0.0001: #len(neg_fQ) > len(Qarr)*.01:
             print('This model could be unphysical! please double check')
             print('model_param = ', model_param)
