@@ -127,9 +127,9 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
     showtime = True
     t0=time.time()
     if showtime:
-            print(' ')
-            print('Using importance sampling... ')
-            print('  building proposal step function... ')
+        print(' ')
+        print('Using importance sampling... ')
+        print('  building proposal step function... ')
 
     steps = steps+1
     r0 = 1e-9
@@ -148,17 +148,17 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
     gridlist = []
     max_index = []
     for i in range(Xn):
-            arr = np.linspace(rmin+r0, rmax, steps)
-            #max_index.append( sum(arr < optvar[0:Xn][i])-1 )
-            gridlist.append( arr )
+        arr = np.linspace(rmin+r0, rmax, steps)
+        #max_index.append( sum(arr < optvar[0:Xn][i])-1 )
+        gridlist.append( arr )
     for i in range(Vn):
-            arr = np.linspace(vmin, vmax, steps)
-            #max_index.append( sum(arr < optvar[Xn:Vn+Xn][i])-1 )
-            gridlist.append( arr )
+        arr = np.linspace(vmin, vmax, steps)
+        #max_index.append( sum(arr < optvar[Xn:Vn+Xn][i])-1 )
+        gridlist.append( arr )
     for i in range(An):
-            arr = np.linspace(0, 2*np.pi, steps)
-            #max_index.append( sum(arr < optvar[Vn+Xn:var_num][i])-1 )
-            gridlist.append( arr )
+        arr = np.linspace(0, 2*np.pi, steps)
+        #max_index.append( sum(arr < optvar[Vn+Xn:var_num][i])-1 )
+        gridlist.append( arr )
 
 
     #build meshgrid of variables; dimension depends on the number of variables
@@ -204,14 +204,14 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
     '''
 
     if (np.sum(parr)==0):
-            print("ERROR: DF might be zero everywhere, or try to increase the step size.")
-            #print "model param: ", model_param
-            return [[1],[2],[3],[4],[5],[6]]
+        print("ERROR: DF might be zero everywhere, or try to increase the step size.")
+        #print "model param: ", model_param
+        return [[1],[2],[3],[4],[5],[6]]
 
     t1=time.time()
     if showtime:
-            print('  complete proposal function, time used: ', t1-t0, 'sec')
-            print('  start drawing samples...')
+        print('  complete proposal function, time used: ', t1-t0, 'sec')
+        print('  start drawing samples...')
     proptime = t1-t0
 
     #draw from flattened fvalues, that's equivalent to draw from multidimensional fvalues
@@ -227,11 +227,11 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
     # each step
     varlist = []
     for i in range(Xn):
-            varlist.append(mgridlist[i].flatten()[index] - np.random.rand(rN)*dx )
+        varlist.append(mgridlist[i].flatten()[index] - np.random.rand(rN)*dx )
     for i in range(Vn):
-            varlist.append(mgridlist[i+Xn].flatten()[index] - np.random.rand(rN)*dv )
+        varlist.append(mgridlist[i+Xn].flatten()[index] - np.random.rand(rN)*dv )
     for i in range(An):
-            varlist.append(mgridlist[i+Xn+Vn].flatten()[index] - np.random.rand(rN)*da )
+        varlist.append(mgridlist[i+Xn+Vn].flatten()[index] - np.random.rand(rN)*da )
 
 
     # calculate the function values at the points drawn from proposal, and calculate
@@ -244,10 +244,10 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
     print('Weight Variance: ', np.var(ws), var1)
 
     if (sum(ws)==0):
-            print('ERROR all proposal samples has zero probability >> Exit.')
-            ne = 99
-            #print "model param: ", model_param
-            return [[ne],[ne],[ne],[ne],[ne],[ne]]
+        print('ERROR all proposal samples has zero probability >> Exit.')
+        ne = 99
+        #print "model param: ", model_param
+        return [[ne],[ne],[ne],[ne],[ne],[ne]]
 
 
     #print "less than zero!!!??? ", fs[fs<0]
@@ -255,16 +255,16 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
     samplearr = resample( ws, auxarr, int(samplesize), replace)
 
     if showtime:
-            print('  sampling completed, time used: ', time.time()-t1, 'sec')
-            print('sample time: ', proptime + time.time()-t1,  'sec')
-            print('------------------------------------')
+        print('  sampling completed, time used: ', time.time()-t1, 'sec')
+        print('sample time: ', proptime + time.time()-t1,  'sec')
+        print('------------------------------------')
     if r_vr_vt:
-            return r_vr_vt_complete(samplearr)
+        return r_vr_vt_complete(samplearr)
     if r_v:
 
-            return r_v_complete(samplearr)
+        return r_v_complete(samplearr)
     if z_vr_vt:
-            return z_vr_vt_complete(samplearr)
+        return z_vr_vt_complete(samplearr)
 
     return np.transpose( np.array(samplearr) )
 
@@ -283,8 +283,8 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
     showtime = True
     t0=time.time()
     if showtime:
-            print(' ')
-            print('Using rejection sampling... ')
+        print(' ')
+        print('Using rejection sampling... ')
 
 
     var_num = Xn + Vn + An
@@ -314,33 +314,33 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
     j = 0
     uX = []
     while ( True ):
-            auxN = int(auxN/(eff))
-            #for i in range(Xn):
-            #        uX.append( np.random.rand(auxN)*rlim )
-            if (auxN > 1e7):
-                    auxN = int(1e7)
-            uX = ( np.random.rand(Xn,auxN)*(rmax-rmin) + rmin )
-            uV = ( np.random.rand(Vn,auxN)*(vmax-vmin) + vmin )
-            uA = ( np.random.rand(An,auxN)*np.pi*2 )
-            u  = np.random.rand(auxN)
+        auxN = int(auxN/(eff))
+        #for i in range(Xn):
+        #        uX.append( np.random.rand(auxN)*rlim )
+        if (auxN > 1e7):
+                auxN = int(1e7)
+        uX = ( np.random.rand(Xn,auxN)*(rmax-rmin) + rmin )
+        uV = ( np.random.rand(Vn,auxN)*(vmax-vmin) + vmin )
+        uA = ( np.random.rand(An,auxN)*np.pi*2 )
+        u  = np.random.rand(auxN)
 
-            uf = fprob(list(uX), list(uV))
-            accept_index = ( (uf/fmax)>u )
-            acceptN += np.sum(accept_index)
-            computeN += auxN
-            eff = acceptN/(computeN*1.0)
-            eff = eff if eff>0 else .01
+        uf = fprob(list(uX), list(uV))
+        accept_index = ( (uf/fmax)>u )
+        acceptN += np.sum(accept_index)
+        computeN += auxN
+        eff = acceptN/(computeN*1.0)
+        eff = eff if eff>0 else .01
 
-            acceptX.append( uX[:,accept_index] )
-            acceptV.append( uV[:,accept_index] )
-            acceptA.append( uA[:,accept_index] )
+        acceptX.append( uX[:,accept_index] )
+        acceptV.append( uV[:,accept_index] )
+        acceptA.append( uA[:,accept_index] )
 
-            print('  ', j, ' total_points_proposed: ', computeN, ' total_points_accepted: ', acceptN)
-            j=j+1
+        print('  ', j, ' total_points_proposed: ', computeN, ' total_points_accepted: ', acceptN)
+        j=j+1
 
-            if (acceptN >= samplesize):
-                    break
-            auxN = samplesize - acceptN
+        if (acceptN >= samplesize):
+            break
+        auxN = samplesize - acceptN
 
     Xarr = np.hstack(tuple(acceptX))[:,0:samplesize]
     Varr = np.hstack(tuple(acceptV))[:,0:samplesize]
@@ -350,92 +350,92 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
     samplearr = np.swapaxes(samplearr,0,1)
 
     if showtime:
-            print("  final acceptance rate: ", eff)
-            print('  sample time: ', time.time()-t0, 'sec')
-            print('------------------------------------')
+        print("  final acceptance rate: ", eff)
+        print('  sample time: ', time.time()-t0, 'sec')
+        print('------------------------------------')
 
     if r_vr_vt:
-            return r_vr_vt_complete(samplearr)
+        return r_vr_vt_complete(samplearr)
     if r_v:
-            return r_v_complete(samplearr)
+        return r_v_complete(samplearr)
     if z_vr_vt:
-            return z_vr_vt_complete(samplearr)
+        return z_vr_vt_complete(samplearr)
 
     return np.transpose(samplearr)
 
 def r_vr_vt_complete(samplelist):
-        if len(samplelist)>=1:
-                samplearr = np.asarray(samplelist)
-                rarr  = samplearr[:,0]
-                vrarr = samplearr[:,1]
-                vtarr = samplearr[:,2]
+    if len(samplelist)>=1:
+        samplearr = np.asarray(samplelist)
+        rarr  = samplearr[:,0]
+        vrarr = samplearr[:,1]
+        vtarr = samplearr[:,2]
 
-        else:   #in case it's empty..
-                print("ERROR: Empty sampleset")
+    else:   #in case it's empty..
+        print("ERROR: Empty sampleset")
 
-        #tranform to the dwarf-galaxy-centered cartesian coordinate
-        r  = rarr
-        v  = (vrarr*vrarr + vtarr*vtarr )**0.5
+    #tranform to the dwarf-galaxy-centered cartesian coordinate
+    r  = rarr
+    v  = (vrarr*vrarr + vtarr*vtarr )**0.5
 
-        rsize = len(r)
-        ru    = np.random.random_sample( rsize )
-        theta = np.arccos(1-2*ru) #inverse sampling the distribution for theta
-        phi   = np.random.random_sample( rsize ) * 2.0 * np.pi
+    rsize = len(r)
+    ru    = np.random.random_sample( rsize )
+    theta = np.arccos(1-2*ru) #inverse sampling the distribution for theta
+    phi   = np.random.random_sample( rsize ) * 2.0 * np.pi
 
-        vsign = np.sign( np.random.random_sample( rsize ) - 0.5 )
-        vphi  = np.random.random_sample( rsize ) * 2.0 * np.pi
+    vsign = np.sign( np.random.random_sample( rsize ) - 0.5 )
+    vphi  = np.random.random_sample( rsize ) * 2.0 * np.pi
 
-        x = r * np.sin(theta) * np.cos(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(theta)
+    x = r * np.sin(theta) * np.cos(phi)
+    y = r * np.sin(theta) * np.sin(phi)
+    z = r * np.cos(theta)
 
-        vz2 = vsign * vrarr
-        vx2 = vtarr * np.cos(vphi)
-        vy2 = vtarr * np.sin(vphi)
+    vz2 = vsign * vrarr
+    vx2 = vtarr * np.cos(vphi)
+    vy2 = vtarr * np.sin(vphi)
 
-        #passive rotation, using rotation matrix
-        #to rotate the zhat of calculate velocity into the zhat of the spatial coordinate
-        vx = np.cos(theta)*np.cos(phi)*vx2 - np.sin(phi)*vy2 + np.sin(theta)*np.cos(phi)*vz2
-        vy = np.cos(theta)*np.sin(phi)*vx2 + np.cos(phi)*vy2 + np.sin(theta)*np.sin(phi)*vz2
-        vz = -np.sin(theta)*vx2 + np.cos(theta)*vz2
-        return np.vstack([x, y, z, vx, vy, vz])
+    #passive rotation, using rotation matrix
+    #to rotate the zhat of calculate velocity into the zhat of the spatial coordinate
+    vx = np.cos(theta)*np.cos(phi)*vx2 - np.sin(phi)*vy2 + np.sin(theta)*np.cos(phi)*vz2
+    vy = np.cos(theta)*np.sin(phi)*vx2 + np.cos(phi)*vy2 + np.sin(theta)*np.sin(phi)*vz2
+    vz = -np.sin(theta)*vx2 + np.cos(theta)*vz2
+    return np.vstack([x, y, z, vx, vy, vz])
 
 #give random direction to both velocity and radial position, convert to cartesian coordinate
 def r_v_complete(samplelist):
-        #into x, y, z, vx, vy, vz
-        samplelist = np.asarray(samplelist)
-        x = samplelist[:,0]
-        rsize = len(x)
-        ru = np.random.random_sample( rsize )
-        rtheta = np.arccos(1-2*ru)
-        rphi   = np.random.random_sample( rsize ) * 2.0 * np.pi
+    #into x, y, z, vx, vy, vz
+    samplelist = np.asarray(samplelist)
+    x = samplelist[:,0]
+    rsize = len(x)
+    ru = np.random.random_sample( rsize )
+    rtheta = np.arccos(1-2*ru)
+    rphi   = np.random.random_sample( rsize ) * 2.0 * np.pi
 
-        xx = x * np.sin(rtheta) * np.cos(rphi)
-        yy = x * np.sin(rtheta) * np.sin(rphi)
-        zz = x * np.cos(rtheta)
+    xx = x * np.sin(rtheta) * np.cos(rphi)
+    yy = x * np.sin(rtheta) * np.sin(rphi)
+    zz = x * np.cos(rtheta)
 
-        v = samplelist[:,1]
-        vu     = np.random.random_sample( rsize )
-        vtheta = np.arccos(1-2*vu)
-        vphi   = np.random.random_sample( rsize ) * 2.0 * np.pi
-        vx     = v * np.sin(vtheta) * np.cos(vphi)
-        vy     = v * np.sin(vtheta) * np.sin(vphi)
-        vz     = v * np.cos(vtheta)
+    v = samplelist[:,1]
+    vu     = np.random.random_sample( rsize )
+    vtheta = np.arccos(1-2*vu)
+    vphi   = np.random.random_sample( rsize ) * 2.0 * np.pi
+    vx     = v * np.sin(vtheta) * np.cos(vphi)
+    vy     = v * np.sin(vtheta) * np.sin(vphi)
+    vz     = v * np.cos(vtheta)
 
-        return np.vstack([xx, yy, zz, vx, vy, vz])
+    return np.vstack([xx, yy, zz, vx, vy, vz])
 
 
 def z_vr_vt_complete(samplelist, context):
     #Important: to use z_vr_vt, the fist element of context needs to be the projected radius R.
     R = context[0]
     if len(samplelist)>=1:
-            samplearr = np.asarray(samplelist)
-            zarr  = samplearr[:,0]
-            vrarr = samplearr[:,1]
-            vtarr = samplearr[:,2]
+        samplearr = np.asarray(samplelist)
+        zarr  = samplearr[:,0]
+        vrarr = samplearr[:,1]
+        vtarr = samplearr[:,2]
 
     else:   #in case it's empty..
-            print("ERROR: Empty sampleset")
+        print("ERROR: Empty sampleset")
 
     zsize = len(zarr)
     phi = np.random.random_sample( zsize ) * 2.0 * np.pi
