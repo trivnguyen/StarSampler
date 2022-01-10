@@ -42,7 +42,7 @@ class OM(object):
 
         #-- num_rsteps = 1e5 should be enough of a table to approximate drho(r)/dPhi(r)
         #-- num_Qsteps = 1000 should be enough to create G(Q) table to approximate f(Q)
-        Qarr, dfG, rtrunc = GQ(self.param_list, num_rsteps=10000, num_Qsteps=1000)
+        Qarr, dfG, rtrunc = GQ(self.param_list, num_rsteps=100000, num_Qsteps=1000)
         r200 = getR200(DM_param)
 
         Pr0 = OMgenphi(1e-8, rtrunc, self.rhos, rs, alpha, beta, gamma)
@@ -104,8 +104,8 @@ class OM(object):
 
 
 
-    def conditional_sample(self, samplesize, Phi_table_steps=1e5, GQ_table_steps=1000,
-                proposal_steps = 1000, r_vr_vt=False):
+    def conditional_sample(self, samplesize, Phi_table_steps=100000, GQ_table_steps=1000,
+                proposal_steps=1000, r_vr_vt=False):
         '''
         Sampling the Osipkov-Merritt-Zhao model by conditional probability
         (i.e. first sampling r from p(r), then Q from p(Q|r), etc.)
@@ -136,7 +136,7 @@ class OM(object):
 
 #alpha beta gamma potential energy, density is truncated at rtrunc
 def OMgenphi(r, rtrunc, rhos, rs, alpha, beta, gamma):
-    x0 = 10**-12
+    x0 = 1e-12
     xlim = (rtrunc + 0) / rs
     alpha = alpha*1.0 #in case alpha is int
     beta  = beta *1.0
@@ -172,7 +172,7 @@ def rho_Q(rarr, ra, rs_s, al_s, be_s, ga_s):
     return rhoQ1
 
 # calculate f(Q) function
-def GQ(model_param, num_rsteps=10000, num_Qsteps=1000):
+def GQ(model_param, num_rsteps=100000, num_Qsteps=1000):
     time_ini = time.time()
     print('Calculating f(Q) function... ')
 
@@ -185,7 +185,7 @@ def GQ(model_param, num_rsteps=10000, num_Qsteps=1000):
     rhos_s = 1.0
     al_s, be_s, ga_s = al_s*1.0, be_s*1.0, ga_s*1.0
 
-    nsteps = 10000
+    nsteps = 100000
     r200   = getR200(DM_param)
     rmax   = r200*1000000
     rtrunc = r200*1 #Dark matter density cut off radius
@@ -295,7 +295,7 @@ def getR200(DM_param):
 
 #-- num_rsteps = 1e5 should be enough of a table to approximate drho(r)/dPhi(r)
 #-- num_Qsteps = 1000 should be enough to create G(Q) table to approximate f(Q)
-def OM_sample(model_param, context, samplesize, Phi_table_steps=1e5, GQ_table_steps=1000,
+def OM_sample(model_param, context, samplesize, Phi_table_steps=10000, GQ_table_steps=1000,
     proposal_steps = 1000, r_vr_vt=False):
 
     samplesize, Phi_table_steps, GQ_table_steps, proposal_steps = \
@@ -414,45 +414,45 @@ def OM_sample(model_param, context, samplesize, Phi_table_steps=1e5, GQ_table_st
             #--------- Done building probability(Q) proposal---------------------
 
             while(not accept):
-                    #sampling from probability(Q) proposal
-                    num_guess = num_guess*2 if num_guess<1e6 else 1e6
-                    Qindex = np.random.choice(np.arange(len(Qprob_proposal)),
-                                              size=num_guess,p=norm_Qprob_proposal)
-                    ux = Qarr[Qindex] + np.random.rand(num_guess)*dQ
-                    fproposal = Qprob_proposal[Qindex]
+                #sampling from probability(Q) proposal
+                num_guess = num_guess*2 if num_guess<1e6 else 1e6
+                Qindex = np.random.choice(np.arange(len(Qprob_proposal)),
+                                          size=num_guess,p=norm_Qprob_proposal)
+                ux = Qarr[Qindex] + np.random.rand(num_guess)*dQ
+                fproposal = Qprob_proposal[Qindex]
 
-                    uf = fQ(ux) * (2*(Pri-ux)*(Pri>ux))**.5
-                    u = np.random.rand(num_guess)
-                    accept_ux = ux[((uf/fproposal)>u)]
+                uf = fQ(ux) * (2*(Pri-ux)*(Pri>ux))**.5
+                u = np.random.rand(num_guess)
+                accept_ux = ux[((uf/fproposal)>u)]
 
-                    if len(accept_ux)>0:
-                           for uxi in accept_ux:
-                            Qi = uxi
+                if len(accept_ux)>0:
+                    for uxi in accept_ux:
+                        Qi = uxi
 
-                            vrmax = (2*max(Pri-Qi,0))**.5
-                            vri = rand.random() * vrmax
-                            T2 = vri*vri
+                        vrmax = (2*max(Pri-Qi,0))**.5
+                        vri = rand.random() * vrmax
+                        T2 = vri*vri
 
-                            T1 = (Pri-Qi)*2
-                            if T1>T2 :
-                                    vti =( (T1 - T2)/(1+ri*ri/(ra*ra)) )**.5
-                                    vr_samples.append(vri)
-                                    vt_samples.append(vti)
-                                    r_samples.append(ri)
-                                    accept = True
-                                    j = j+1
-                                    if j%100==0:
-                                        print("samples accepted: ", j) #, num_guess
-                                    break
-                            else:
-                                    null_count = null_count+ 1
+                        T1 = (Pri-Qi)*2
+                        if T1>T2 :
+                            vti =( (T1 - T2)/(1+ri*ri/(ra*ra)) )**.5
+                            vr_samples.append(vri)
+                            vt_samples.append(vti)
+                            r_samples.append(ri)
+                            accept = True
+                            j = j+1
+                            if j%100==0:
+                                print("samples accepted: ", j) #, num_guess
+                            break
+                        else:
+                            null_count = null_count+ 1
 
     samplearr = np.vstack((r_samples,vr_samples,vt_samples))
     samplearr = np.swapaxes(samplearr,0,1)
     print('OM sample time (sec): ', time.time()-t0) #, null_count
 
     if r_vr_vt:
-            return r_vr_vt_complete(samplearr)
+        return r_vr_vt_complete(samplearr)
 
     return samplearr
 
@@ -471,8 +471,8 @@ def rprob_max(model_param):
     ra, rs_s, al_s, be_s, ga_s, rho, rs, alpha, beta, gamma = model_param
 
     def rfun(r):
-            rprob = (r*r)*rhos_s * ((r/rs_s)**-ga_s) * (1+(r/rs_s)**al_s)**((ga_s-be_s)/al_s)
-            return rprob
+        rprob = (r*r)*rhos_s * ((r/rs_s)**-ga_s) * (1+(r/rs_s)**al_s)**((ga_s-be_s)/al_s)
+        return rprob
 
     optvar = scipy.optimize.fmin(lambda r1: -rfun(r1), (rs_s), disp=False)
     fmax = rfun(optvar)
@@ -496,13 +496,13 @@ def Qprob_max(dfGQarr1, Pri):
 
 def r_vr_vt_complete(samplelist):
     if len(samplelist)>=1:
-            samplearr = np.asarray(samplelist)
-            rarr  = samplearr[:,0]
-            vrarr = samplearr[:,1]
-            vtarr = samplearr[:,2]
+        samplearr = np.asarray(samplelist)
+        rarr  = samplearr[:,0]
+        vrarr = samplearr[:,1]
+        vtarr = samplearr[:,2]
 
     else:   #in case it's empty..
-            print("ERROR: Empty sampleset")
+        print("ERROR: Empty sampleset")
 
     #tranform to the dwarf-galaxy-centered cartesian coordinate
     r  = rarr
@@ -529,7 +529,7 @@ def r_vr_vt_complete(samplelist):
     vx = np.cos(theta)*np.cos(phi)*vx2 - np.sin(phi)*vy2 + np.sin(theta)*np.cos(phi)*vz2
     vy = np.cos(theta)*np.sin(phi)*vx2 + np.cos(phi)*vy2 + np.sin(theta)*np.sin(phi)*vz2
     vz = -np.sin(theta)*vx2 + np.cos(theta)*vz2
-    return x, y, z, vx, vy, vz
+    return np.vstack([x, y, z, vx, vy, vz])
 
 
 
