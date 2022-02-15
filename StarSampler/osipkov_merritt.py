@@ -42,7 +42,7 @@ class OM(object):
 
         #-- num_rsteps = 1e5 should be enough of a table to approximate drho(r)/dPhi(r)
         #-- num_Qsteps = 1000 should be enough to create G(Q) table to approximate f(Q)
-        Qarr, dfG, rtrunc = GQ(self.param_list, num_rsteps=100000, num_Qsteps=1000)
+        Qarr, dfG, rtrunc, flag = GQ(self.param_list, num_rsteps=100000, num_Qsteps=1000)
         r200 = getR200(DM_param)
 
         Pr0 = OMgenphi(1e-8, rtrunc, self.rhos, rs, alpha, beta, gamma)
@@ -55,6 +55,7 @@ class OM(object):
         self.Vlim = [0, vmax]
         self.context = [Qarr, dfG, rtrunc]
         self.model_param = model_param
+        self.flag = flag
 
         # Required output of __init__()
         self.sampler_input = [self.nX, self.nV, self.Xlim, self.Vlim]
@@ -249,11 +250,14 @@ def GQ(model_param, num_rsteps=100000, num_Qsteps=1000):
     num_neg_fQ = sum(fQtest<0)
     neg_Q_fraction = num_neg_fQ / numQ
     if neg_Q_fraction >= 0.0001: #len(neg_fQ) > len(Qarr)*.01:
-            print('This model could be unphysical! please double check')
-            print('model_param = ', model_param)
+        print('This model could be unphysical! please double check')
+        print('model_param = ', model_param)
+        flag = 1
+    else:
+        flag = 0
     #--------------------end check ----------------------------------
 
-    return Qarr, fQ, rtrunc
+    return Qarr, fQ, rtrunc, flag
 
 
 #calculate r200 for a given dark matter parameters
