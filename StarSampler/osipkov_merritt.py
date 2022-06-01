@@ -299,7 +299,7 @@ def getR200(DM_param):
 
 #-- num_rsteps = 1e5 should be enough of a table to approximate drho(r)/dPhi(r)
 #-- num_Qsteps = 1000 should be enough to create G(Q) table to approximate f(Q)
-def OM_sample(model_param, context, samplesize, Phi_table_steps=10000, GQ_table_steps=1000,
+def OM_sample(model_param, context, samplesize, Phi_table_steps=100000, GQ_table_steps=1000,
     proposal_steps = 1000, r_vr_vt=False):
 
     samplesize, Phi_table_steps, GQ_table_steps, proposal_steps = \
